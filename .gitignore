@@ -1,0 +1,6 @@
+pycharm.py
+.idea
+/venv
+/__pycache__
+/app/__pycache__
+/app/main/__pycache__
