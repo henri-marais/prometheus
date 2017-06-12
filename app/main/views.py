@@ -11,4 +11,5 @@ def index():
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', current_time = datetime.utcnow())
+    machine_config = {'menu':False}
+    return render_template('dashboard.html', current_time = session.get('login_time'), machine=machine_config)

@@ -7,6 +7,7 @@ def register_extensions(app):
     db.init_app(app)
     loginmanager.init_app(app)
     moment.init_app(app)
+    mail.init_app(app)
 
 def create_app(config_name):
     app = Flask(__name__)
