@@ -4,3 +4,5 @@ pycharm.py
 /__pycache__
 /app/__pycache__
 /app/main/__pycache__
+/migrations
+data-dev.sqlite
