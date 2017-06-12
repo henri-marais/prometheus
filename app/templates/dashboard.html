@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block navbar_left %}
+    <li><a href="{{ url_for('main.dashboard') }}">Home</a></li>
+{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello, {{ current_user.name }}</h1>
+    <p>You logged in at {{ moment(current_time).format('LLLL') }}.</p>
+</div>
+{% endblock %}
