@@ -6,6 +6,7 @@ from ..models import User
 from .forms import LoginForm, RegistrationForm
 from ..extensions import db
 from datetime import datetime
+from app import celery
 
 @auth.route('/login', methods=['GET','POST'])
 def login():
