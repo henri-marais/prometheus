@@ -7,8 +7,8 @@ class Config:
     MAIL_SERVER = 'smtp.googlemail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or 'henri.marais@gmail.com'
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') or 'pass4H3nri5gmail'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_SUBJECT_PREFIX = '[Prometheus]'
     MAIL_SENDER = 'Prometheus Admin <henri.marais@gmail.com>'
     MAIL_SITE_ADMIN = os.environ.get('SITE_ADMIN')
