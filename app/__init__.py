@@ -3,7 +3,7 @@ from .extensions import bootstrap,db,mail,loginmanager,moment
 from config import config, Config
 from celery import Celery
 
-celery = Celery(__name__, broker='redis://localhost:6379/0')
+celery = Celery()
 
 def register_extensions(app):
     bootstrap.init_app(app)

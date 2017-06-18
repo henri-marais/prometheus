@@ -6,3 +6,4 @@ function createAutoClosingAlert(selector, delay) {
     });
 }, delay);
 }
+

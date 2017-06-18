@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="container-fluid">
+	<div class="row text-center bottom-space">
+        <div class="btn-group"
+        <p>Please select Machine:</p>
+        <div class="btn-group">
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" data-value="0">
+                    Select a machine
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                    <li><a href="#" data-value="1">Sample Machine 1</a></li>
+                    <li><a href="#" data-value="2">Sample Machine 2</a></li>
+                </ul>
+            </div>
+        </div>
+<!--<
+        <div class="dropdown">
+  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example
+  <span class="caret"></span></button>
+  <ul class="dropdown-menu">
+    <li><a href="#">HTML</a></li>
+    <li><a href="#">CSS</a></li>
+    <li><a href="#">JavaScript</a></li>
+  </ul>
+</div>-->
+
+			<button type="button" class="btn btn-disabled" onclick="StartLiveView()" id="live_view_button">Connect</button>
+	</div>
+</div>
+	<div class="row">
+		<div class="col-md-4 text-center">
+            <img class="img-responsive center-block" alt="Bootstrap Image Preview" src="{{ url_for('static',filename='images/mixer_unknown.png') }}"/>
+		</div>
+		<div class="col-md-4 text-center">
+			<h4 class="bottom-space">
+				Live Diagnostic Values
+			</h4>
+            <h4> </h4>
+            <div class="row" id="liveValues">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-5  text-right">
+                    <p><b>Current state:</b></p>
+                    <p><b>Running time:</b></p>
+                    <p><b>Motor Current:</b></p>
+                </div>
+                <div class="col-sm-1"></div>
+                <div class="col-sm-4 text-left">
+                    <p class="text-muted" id="text_state"> Offline</p>
+                    <p class="text-muted" id="text_uptime"> 00:00:00</p>
+                    <p class="text-muted" id="text_motor_current"> 0 A</p>
+                </div>
+            </div>
+		</div>
+		<div class="col-md-4">
+			<h4 class="bottom-space">
+				Historic Performance
+			</h4>
+			<p>
+				<b>Number of Cycles:</b> 0
+			</p>
+            <p>
+                <b>Total running time:</b> 00:00:00
+            </p>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+  .bottom-space {
+     margin-bottom: 0.5cm;
+  }
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function textDisabled(item_id, state) {
+    var item = document.getElementById(item_id);
+    if (state==true){
+        item.className = "text-muted"
+    }else{
+        item.className = "text-info"
+    }
+
+}
+</script>
+    <script>
+    $(".dropdown-menu li a").click(function(){
+    $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
+    $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
+}   );
+    </script>
+<script>
+function StartLiveView(){
+    if (document.getElementsByClassName("dropdown-toggle")[0].value == 0){
+        alert('Please select a machine!')
+    }else{
+
+        $.ajax({
+            datatype: 'json',
+            data: JSON.stringify({
+                "serial":document.getElementsByClassName("dropdown-toggle")[0].value,
+                "action":$("#live_view_button").html()
+            }),
+            contentType: "application/json",
+            type: 'POST',
+            url: '/diagx/start',
+            success: function (data, status, request) {
+                status_url = request.getResponseHeader('Location');
+                $("#live_view_button").html("Disconnect");
+                urlChunks = status_url.split('/');
+                if (urlChunks[urlChunks.length - 1] != 'Done'){
+                    //update_progress(status_url);
+                }else{
+                    $("#live_view_button").html("Connect");
+                }
+
+            },
+            error: function () {
+                alert('Unexpected error in AJAX call!');
+            }
+        });
+    }
+};
+</script>
+
+{% endblock %}

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from app import create_app
+from app import create_app,celery
 from app.extensions import db
 from app.models import User,Role
 from flask_script import Manager, Shell
@@ -11,7 +11,7 @@ manager = Manager(app)
 migrate = Migrate(app, db)
 
 def make_shell_context():
-    return dict(app=app, db=db, User=User, Role=Role)
+    return dict(app=app, db=db, User=User, Role=Role, celery=celery)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
