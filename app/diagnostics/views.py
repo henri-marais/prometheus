@@ -25,7 +25,7 @@ def machine_scanner_start():
         print("[FLASK] Stopping LiveView Scanner on serial no: %s" % request.get_json()['serial'])
         print("[FLASK] Trying to terminate celery task with ID %s" % session['livetaskid'])
         # scanner = machine_scanner_task.AsyncResult(session['livetaskid'])
-        celery.control.revoke(session['livetaskid'],terminate=True, signal=signal.SIGTABRT)
+        celery.control.revoke(session['livetaskid'],terminate=True, signal=signal.SIGINT)
         return jsonify({}), 204, {'Location': 'Done'}
 
 
@@ -66,15 +66,15 @@ def machine_scanner(task_id):
 def machine_scanner_task(self,machine_id):
     """Background task that determines the state of a machine and returns it to the user"""
     kill = False
+
     def handler(signum, frame):
         print('Caught', signum)
-        print('Terminate!!!')
-        global kill
-        # do some task clean up here
-        # ...
-        # flag task termination
+        print('Trying to terminate!!!')
+        nonlocal kill
+        print('Current state of kill is %s' % kill)
         kill = True
-    signal.signal(signal.SIGABRT, handler)
+        print('State of kill after change is %s' % kill)
+    signal.signal(signal.SIGINT, handler)
     print("[Machine Scanner Celery Task] Machine ID is %s" % machine_id)
     verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
     adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
