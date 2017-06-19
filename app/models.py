@@ -11,14 +11,14 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 class User(UserMixin, db.Model):
-    __tablename__ : 'users'
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128),unique=False)
     email = db.Column(db.String(255), unique=True)
     password_hash = db.Column(db.String(255))
     active = db.Column(db.Boolean)
     registered_at = db.Column(db.DateTime, default= datetime.utcnow())
-    confirmed_at = db.Column(db.DateTime())
+    confirmed_at = db.Column(db.DateTime)
     confirmed = db.Column(db.Boolean, default=False)
     role = db.Column(db.Integer,db.ForeignKey('roles.id'))
 
