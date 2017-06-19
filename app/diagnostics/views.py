@@ -87,7 +87,7 @@ def machine_scanner_task(self,machine_id):
             message = '{0} {1} {2}...|mach {3}|'.format(random.choice(verb),random.choice(adjective),
                                                         random.choice(noun),machine_id)
         self.update_state(state='PROGRESS',meta={'current':1, 'total': 2, 'status':message})
-        print("Machine scanner is alive (i = $s" % i)
+        print("Machine scanner is alive (i = %s" % i)
         time.sleep(1)
         if i>10:
             kill = True
