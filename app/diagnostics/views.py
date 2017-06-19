@@ -25,7 +25,7 @@ def machine_scanner_start():
         print("[FLASK] Stopping LiveView Scanner on serial no: %s" % request.get_json()['serial'])
         print("[FLASK] Trying to terminate celery task with ID %s" % session['livetaskid'])
         # scanner = machine_scanner_task.AsyncResult(session['livetaskid'])
-        celery.control.revoke(session['livetaskid'],terminate=True, signal=signal.SIGTERM)
+        celery.control.revoke(session['livetaskid'],terminate=True, signal=signal.SIGTABRT)
         return jsonify({}), 204, {'Location': 'Done'}
 
 
@@ -74,18 +74,22 @@ def machine_scanner_task(self,machine_id):
         # ...
         # flag task termination
         kill = True
-    signal.signal(signal.SIGTERM, handler)
+    signal.signal(signal.SIGABRT, handler)
     print("[Machine Scanner Celery Task] Machine ID is %s" % machine_id)
     verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
     adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
     noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter', 'bit']
     message = ''
+    i = 0
     while not kill:
+        i =+ 1
         if not message or random.random() < 0.25:
             message = '{0} {1} {2}...|mach {3}|'.format(random.choice(verb),random.choice(adjective),
                                                         random.choice(noun),machine_id)
         self.update_state(state='PROGRESS',meta={'current':1, 'total': 2, 'status':message})
-        print("Machine scanner is alive")
+        print("Machine scanner is alive (i = $s" % i)
         time.sleep(1)
+        if i>10:
+            kill = True
     print("Machine scanner is aborted")
     return {'current':100, 'total':100,'status':'Task Complete','result':42}
