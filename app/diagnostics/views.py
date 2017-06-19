@@ -5,8 +5,7 @@ from app import celery
 import random, time
 import signal
 from billiard.exceptions import Terminated
-
-
+from .tasks import machine_scanner_task
 
 @diagnostics.route('/historic')
 def historic():
@@ -62,34 +61,31 @@ def machine_scanner(task_id):
     return jsonify(response)
 
 
-@celery.task(bind=True, throws=(Terminated,))
-def machine_scanner_task(self,machine_id):
-    """Background task that determines the state of a machine and returns it to the user"""
-    kill = False
-
-    def handler(signum, frame):
-        print('Caught', signum)
-        print('Trying to terminate!!!')
-        nonlocal kill
-        print('Current state of kill is %s' % kill)
-        kill = True
-        print('State of kill after change is %s' % kill)
-    signal.signal(signal.SIGINT, handler)
-    print("[Machine Scanner Celery Task] Machine ID is %s" % machine_id)
-    verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
-    adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
-    noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter', 'bit']
-    message = ''
-    i = 0
-    while not kill:
-        i =+ 1
-        if not message or random.random() < 0.25:
-            message = '{0} {1} {2}...|mach {3}|'.format(random.choice(verb),random.choice(adjective),
-                                                        random.choice(noun),machine_id)
-        self.update_state(state='PROGRESS',meta={'current':1, 'total': 2, 'status':message})
-        print("Machine scanner is alive (i = %s" % i)
-        time.sleep(1)
-        if i>10:
-            kill = True
-    print("Machine scanner is aborted")
-    return {'current':100, 'total':100,'status':'Task Complete','result':42}
+# @celery.task(bind=True, throws=(Terminated,))
+# def machine_scanner_task(self,machine_id):
+#     """Background task that determines the state of a machine and returns it to the user"""
+#     kill = False
+#
+#     def handler(signum, frame):
+#         print('Caught', signum)
+#         print('Trying to terminate!!!')
+#         nonlocal kill
+#         print('Current state of kill is %s' % kill)
+#         kill = True
+#         print('State of kill after change is %s' % kill)
+#     signal.signal(signal.SIGINT, handler)
+#     print("[Machine Scanner Celery Task] Machine ID is %s" % machine_id)
+#     verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
+#     adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
+#     noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter', 'bit']
+#     message = ''
+#     i = 0
+#     while not kill:
+#         if not message or random.random() < 0.25:
+#             message = '{0} {1} {2}...|mach {3}|'.format(random.choice(verb),random.choice(adjective),
+#                                                         random.choice(noun),machine_id)
+#         self.update_state(state='PROGRESS',meta={'current':1, 'total': 2, 'status':message})
+#         print("Machine scanner is alive (i = %s" % i)
+#         time.sleep(1)
+#     print("Machine scanner is aborted")
+#     return {'current':100, 'total':100,'status':'Task Complete','result':42}
