@@ -1,5 +1,5 @@
 from app import celery
-from manage import app
+from flask import current_app
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound,MultipleResultsFound
@@ -7,23 +7,6 @@ from ..models import Machine,Machine_State,Machine_Type,Record,Packet_Type
 import random, time
 import signal
 from billiard.exceptions import Terminated
-
-def connect():
-    """Connects to the database and return a session"""
-
-    uri = app.config['SQLALCHEMY_DATABASE_URI']
-
-    # The return value of create_engine() is our connection object
-    con = sqlalchemy.create_engine(uri)
-
-    # create a Session
-    Session = sessionmaker(bind=con)
-    session = Session()
-
-    return con, session
-
-# con, session = connect()
-
 
 @celery.task(bind=True, throws=(Terminated,))
 def machine_scanner_task(self,machine_serial_no):
@@ -41,7 +24,7 @@ def machine_scanner_task(self,machine_serial_no):
     kill = False
 
     while not kill:
-        uri = app.config['SQLALCHEMY_DATABASE_URI']
+        uri = current_app.config['SQLALCHEMY_DATABASE_URI']
         con = sqlalchemy.create_engine(uri)
         Session = sessionmaker(bind=con)
         session = Session()
