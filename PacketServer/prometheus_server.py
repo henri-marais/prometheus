@@ -1,6 +1,58 @@
 import socket
 import signal
 import sys
+from PacketServer import CGR_protocol as CGRP
+from .DatabaseModels import build_db, Machine, Machine_Type, Machine_State, connect_db, Record, Packet_Type
+
+def heartbeat_packet(db,serial_no,timestamp):
+    print("Making a heartbeat packet for machine with serial no %s" % serial_no)
+    machine = db.query(Machine).filter_by(serial_no=serial_no).one()
+    packet_type = db.query(Packet_Type).filter_by(packet_name='Heartbeat').one()
+    record = Record(packet_timestamp=timestamp, machine=machine,
+                    packet_type=packet_type)
+    db.add(record)
+    db.commit()
+    print("Record added")
+
+def starting_packet(db,serial_no,timestamp):
+    print("Making a starting packet for machine with serial no %s" % serial_no)
+    machine = db.query(Machine).filter_by(serial_no=serial_no).one()
+    packet_type = db.query(Packet_Type).filter_by(packet_name='Starting').one()
+    record = Record(packet_timestamp=timestamp, machine=machine,
+                    packet_type=packet_type)
+    db.add(record)
+    db.commit()
+    print("Record added")
+
+def started_packet(db,serial_no,timestamp,data):
+    print("Making a starting packet for machine with serial no %s" % serial_no)
+    machine = db.query(Machine).filter_by(serial_no=serial_no).one()
+    packet_type = db.query(Packet_Type).filter_by(packet_name='Started').one()
+    record = Record(packet_timestamp=timestamp, machine=machine,
+                    packet_type=packet_type, packet_data=data)
+    db.add(record)
+    db.commit()
+    print("Record added")
+
+def running_packet(db,serial_no,timestamp,data):
+    print("Making a starting packet for machine with serial no %s" % serial_no)
+    machine = db.query(Machine).filter_by(serial_no=serial_no).one()
+    packet_type = db.query(Packet_Type).filter_by(packet_name='Running').one()
+    record = Record(packet_timestamp=timestamp, machine=machine,
+                    packet_type=packet_type, packet_data=data)
+    db.add(record)
+    db.commit()
+    print("Record added")
+
+def shutdown_packet(db,serial_no,timestamp):
+    print("Making a heartbeat packet for machine with serial no %s" % serial_no)
+    machine = db.query(Machine).filter_by(serial_no=serial_no).one()
+    packet_type = db.query(Packet_Type).filter_by(packet_name='Shutdown').one()
+    record = Record(packet_timestamp=timestamp, machine=machine,
+                    packet_type=packet_type)
+    db.add(record)
+    db.commit()
+    print("Record added")
 
 def signal_handler(signal, frame):
     print("Prometheus Packet Server - Get Ctrl-C")
@@ -18,7 +70,6 @@ def signal_handler(signal, frame):
     sys.exit()
 
 #hook the signal handler
-
 signal.signal(signal.SIGINT,signal_handler)
 
 # Create a TCP/IP socket
@@ -30,6 +81,8 @@ print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 # Listen for incoming connections
 sock.listen(1)
+print("Trying to connect to DB @ " + 'sqlite:///' + sys.argv[1])
+db = connect_db('sqlite:///' + sys.argv[1])
 while True:
     # Wait for a connection
     print('waiting for a connection')
@@ -39,17 +92,24 @@ while True:
 
         # Receive the data in small chunks and retransmit it
         # while True:
-        data = connection.recv(50)
-        hex_string = "".join("[%02x] " % b for b in data)
+        datagram = connection.recv(50)
+        hex_string = "".join("[%02x] " % b for b in datagram)
         print('received "%s"' % hex_string)
-            # if data:
-            #     print >> sys.stderr, 'sending data back to the client'
-            #     connection.sendall(data)
-            # else:
-            #     print >> sys.stderr, 'no more data from', client_address
-            #     break
+        machine_serial = datagram[0]
+        packet_timestamp = CGRP.CGR_TimeStamp(datagram)
+        if (CGRP.CGR_Type(datagram) == "Heartbeat"):
+            heartbeat_packet(db,machine_serial,packet_timestamp)
+        if (CGRP.CGR_Type(datagram) == "Starting"):
+            starting_packet(db,machine_serial,packet_timestamp)
+        if (CGRP.CGR_Type(datagram) == "Started"):
+            packet_data = CGRP.CGR_Data(datagram)
+            started_packet(db,machine_serial,packet_timestamp,packet_data)
+        if (CGRP.CGR_Type(datagram) == "Running"):
+            packet_data = CGRP.CGR_Data(datagram)
+            running_packet(db,machine_serial,packet_timestamp,packet_data)
+        if (CGRP.CGR_Type(datagram) == "Shutdown"):
+            shutdown_packet(db, machine_serial, packet_timestamp)
 
     finally:
         # Clean up the connection
         connection.close()
-

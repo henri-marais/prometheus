@@ -8,3 +8,4 @@ pycharm.py
 /app/diagnostics/__pycache__
 /migrations
 data-dev.sqlite
+/PacketServer/
