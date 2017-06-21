@@ -1,4 +1,5 @@
-from app import celery
+from prometheus import app
+from app import celery, create_app
 from flask import current_app
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
@@ -8,8 +9,8 @@ import random, time
 import signal
 from billiard.exceptions import Terminated
 
-@celery.task(bind=True, throws=(Terminated,))
-def machine_scanner_task(self,machine_serial_no):
+@celery.task(bind=True, throws=(Terminated,), task_track_started=True)
+def machine_liveView(self,machine_serial_no):
     """Background task that determines the state of a machine and returns it to the user"""
     def handler(signum, frame):
         print('[Machine Scanner Task] Caught', signum)
@@ -18,10 +19,17 @@ def machine_scanner_task(self,machine_serial_no):
         print('[Machine Scanner Task] Current state of kill is %s' % kill)
         kill = True
         print('[Machine Scanner Task] State of kill after change is %s' % kill)
+
     signal.signal(signal.SIGINT, handler)
     print("[Machine Scanner Task] Machine serial no is %s" % machine_serial_no)
 
     kill = False
+
+    import os
+    from app import celery, create_app
+
+    app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+    app.app_context().push()
 
     while not kill:
         uri = current_app.config['SQLALCHEMY_DATABASE_URI']
@@ -61,20 +69,13 @@ def machine_scanner_task(self,machine_serial_no):
                         print('[Machine Scanner Task] DX is Online. Changing machine state to "Stopped"')
                         my_machine.state = session.query(Machine_State).filter_by(state_name="Stopped").one()
                     session.commit()
+
         else:
             print("No new records found. Sleeping for 1s")
+        self.update_state(state='RUNNING', meta={'current': 4.5})
         time.sleep(1)
         session.close()
     return False
 
 
-
-    # i = 0
-    # while not kill:
-    #     self.update_state(state='PROGRESS',meta={'current':1, 'total': 2, 'status':'yippee'})
-    #     i = i+1
-    #     print("Machine scanner is alive (i = %s" % i)
-    #     time.sleep(1)
-    #
-    # print("Machine scanner is aborted")
-    # return {'current':100, 'total':100,'status':'Task Complete','result':42}
+# self.update_state(state='PROGRESS',meta={'current': i, 'total': total,'status': message})

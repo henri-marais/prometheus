@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block page_content %}
-<div class="container-fluid">
+<div class="container">
 	<div class="row text-center bottom-space">
-        <div class="btn-group"
+        <div class="btn-group">
         <p>Please select Machine:</p>
         <div class="btn-group">
             <div class="dropdown">
@@ -12,61 +12,61 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                    <li><a href="#" data-value="1">Sample Machine 1</a></li>
-                    <li><a href="#" data-value="2">Sample Machine 2</a></li>
+                    {% for machine in machines %}
+                    <li><a href="#" data-value="{{ machine.serial_no }}">{{ machine.name }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
-<!--<
-        <div class="dropdown">
-  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example
-  <span class="caret"></span></button>
-  <ul class="dropdown-menu">
-    <li><a href="#">HTML</a></li>
-    <li><a href="#">CSS</a></li>
-    <li><a href="#">JavaScript</a></li>
-  </ul>
-</div>-->
-
-			<button type="button" class="btn btn-disabled" onclick="StartLiveView()" id="live_view_button">Connect</button>
+		<button type="button" class="btn btn-disabled" onclick="StartLiveView()" id="live_view_button">Connect</button>
 	</div>
-</div>
-	<div class="row">
-		<div class="col-md-4 text-center">
+    </div>
+    <div class="row bottom-space" id="DX_info_row">
+		<div class="col-sm-4 text-center diagnostic_info" id="DX_machine_image">
             <img class="img-responsive center-block" alt="Bootstrap Image Preview" src="{{ url_for('static',filename='images/mixer_unknown.png') }}"/>
 		</div>
-		<div class="col-md-4 text-center">
+		<div class="col-sm-4 text-center diagnostic_info" id="DX_live_info">
 			<h4 class="bottom-space">
 				Live Diagnostic Values
 			</h4>
             <h4> </h4>
             <div class="row" id="liveValues">
-                <div class="col-sm-1"></div>
-                <div class="col-sm-5  text-right">
+                <div class="col-xs-1"></div>
+                <div class="col-xs-5  text-right">
                     <p><b>Current state:</b></p>
                     <p><b>Running time:</b></p>
-                    <p><b>Motor Current:</b></p>
+                    <p><b>Motor current:</b></p>
                 </div>
-                <div class="col-sm-1"></div>
-                <div class="col-sm-4 text-left">
+
+                <div class="col-xs-5 text-left">
                     <p class="text-muted" id="text_state"> Offline</p>
-                    <p class="text-muted" id="text_uptime"> 00:00:00</p>
+                    <p class="text-muted" id="text_runtime"> 00:00:00</p>
                     <p class="text-muted" id="text_motor_current"> 0 A</p>
                 </div>
+                <div class="col-xs-1"></div>
             </div>
 		</div>
-		<div class="col-md-4">
-			<h4 class="bottom-space">
+		<div class="col-sm-4 text-center diagnostic_info" id="DX_historic_info">
+            <h4 class="bottom-space">
 				Historic Performance
 			</h4>
-			<p>
-				<b>Number of Cycles:</b> 0
-			</p>
-            <p>
-                <b>Total running time:</b> 00:00:00
-            </p>
+            <h4> </h4>
+            <div class="row" id="HistoricValues">
+                <div class="col-xs-1"></div>
+                <div class="col-xs-5  text-right">
+                    <p><b>Cycles #:</b></p>
+                    <p><b>Total uptime:</b></p>
+                    <p><b>Typ. current (A):</b></p>
+                </div>
+                <div class="col-xs-5 text-left">
+                    <p class="text-muted" id="text_cycles">-1</p>
+                    <p class="text-muted" id="text_uptime"></p>
+                    <p class="text-danger" id="text_avg_motor_current"><b>TODO</b></p>
+                </div>
+                <div class="col-xs-1"></div>
+            </div>
 		</div>
-	</div>
+    </div>
 </div>
 {% endblock %}
 
@@ -79,23 +79,75 @@
 </style>
 {% endblock %}
 
+
+
 {% block scripts %}
 {{ super() }}
+    <script> document.write('<style>.diagnostic_info { visibility: hidden; } </style>'); </script>
+
+<script type="text/javascript">
+jQuery(document).ready(function(){
+    //delay();
+});
+
+function fade_DX_delay(descriptor) {
+    var secs = 300;
+    setTimeout(function(){
+        jQuery(descriptor).css("visibility","visible");
+        jQuery(descriptor).css("display","none");
+        jQuery(descriptor).fadeIn(1200);
+    }, secs,descriptor);
+}
+
+function initFadeIn(param1) {
+    jQuery(param1).css("visibility","visible");
+    jQuery(param1).css("display","none");
+    jQuery(param1).fadeIn(1200);
+}
+</script>
 <script>
 function textDisabled(item_id, state) {
     var item = document.getElementById(item_id);
     if (state==true){
         item.className = "text-muted"
     }else{
-        item.className = "text-info"
+        item.className = "text"
     }
-
 }
 </script>
     <script>
     $(".dropdown-menu li a").click(function(){
     $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
     $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
+    fade_DX_delay("#DX_historic_info");
+    //Theoretically do an ajax call here to obtain the relevant information of the machine in question
+        $.ajax({
+            dataType: 'json',
+            data: JSON.stringify({"serial_no":document.getElementsByClassName("dropdown-toggle")[0].value}),
+            contentType: "application/json",
+            type: 'POST',
+            url: '/diagx/historic',
+            success: function (data, status, request) {
+                if (data.Cycles){
+                    textDisabled("text_cycles",false);
+                    $("#text_cycles").text(data.Cycles)
+                }
+                if (data.Uptime){
+                    textDisabled("text_uptime",false);
+                    $("#text_uptime").text(data.Uptime)
+                }
+                if (data.State){
+                    fade_DX_delay("#DX_live_info");
+                    //textDisabled("text_state",false);
+                    $("#text_state").text(data.State);
+                }
+            },
+            error: function () {
+                alert('ERROR: AJAX retrieving historic info!');
+            }
+        });
+
+
 }   );
     </script>
 <script>
@@ -118,7 +170,7 @@ function StartLiveView(){
                 $("#live_view_button").html("Disconnect");
                 urlChunks = status_url.split('/');
                 if (urlChunks[urlChunks.length - 1] != 'Done'){
-                    //update_progress(status_url);
+                    UpdateUI(status_url);
                 }else{
                     $("#live_view_button").html("Connect");
                 }
@@ -129,7 +181,27 @@ function StartLiveView(){
             }
         });
     }
-};
-</script>
+}
 
+function UpdateUI(status_URL){
+    //Since this function needs to poll the URL at which the celery worker is reporting, a .getJSON call is used
+    $.getJSON(status_URL,JSON.stringify({}),function(data){
+        if ('state' in data){
+            textDisabled("text_state",false);
+            $("#text_state").text(data['state']);
+        }
+        if (data['state'] !== 'REVOKED') {
+            setTimeout(function () {
+                UpdateUI(status_URL);
+            }, 500);
+        }
+    });
+}
+</script>
+<script src="{{ url_for('static',filename="js/jquery.blockUI.js")}}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+       //$("#row_info").block({message:null});
+    });
+</script>
 {% endblock %}

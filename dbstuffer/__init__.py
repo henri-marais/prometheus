@@ -1,4 +1,4 @@
-from app.database import build_db, Machine, Machine_Type, Machine_State, connect_db, Record, Packet_Type
+from .database import build_db, Machine, Machine_Type, Machine_State, connect_db, Record, Packet_Type
 from datetime import datetime
 import time, os
 from sqlalchemy.orm.exc import NoResultFound,MultipleResultsFound
