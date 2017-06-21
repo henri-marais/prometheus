@@ -83,6 +83,7 @@ def machine_liveView(self,machine_serial_no):
                     live_data['state'] = machine_state_in_packet.state_name
                     if live_data['state'] == "Running":
                         live_data['motor_current'] = record.packet_data
+                        # print("[Machine Scanner Task] Machine is %s. Updating motor current to")
                     else:
                         live_data['motor_current'] = ''
                     if (live_data['state'] == "Shutdown"):

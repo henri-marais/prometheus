@@ -57,7 +57,7 @@ def machine_scanner(task_id):
         'total_run_time': pack_time(task.info.get('total_run_time')),
         'current_run_time': pack_time(task.info.get('current_run_time')),
         'cycles': task.info.get('cycles'),
-        'motor_current': task.info.get('motor_curremt'),
+        'motor_current': task.info.get('motor_current'),
         'average_current':'',
         'state':task.info.get('state')}
     else:
