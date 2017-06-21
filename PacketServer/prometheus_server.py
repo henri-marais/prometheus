@@ -1,8 +1,8 @@
 import socket
 import signal
 import sys
-from .CGR_protocol import CGR_Type,CGR_Data,CGR_TimeStamp
-from .DatabaseModels import build_db, Machine, Machine_Type, Machine_State, connect_db, Record, Packet_Type
+from CGR_protocol import CGR_Type,CGR_Data,CGR_TimeStamp
+from DatabaseModels import build_db, Machine, Machine_Type, Machine_State, connect_db, Record, Packet_Type
 
 def heartbeat_packet(db,serial_no,timestamp):
     print("Making a heartbeat packet for machine with serial no %s" % serial_no)
