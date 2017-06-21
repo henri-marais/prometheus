@@ -1,7 +1,7 @@
 import socket
 import signal
 import sys
-from PacketServer import CGR_protocol as CGRP
+from .CGR_protocol import CGR_Type,CGR_Data,CGR_TimeStamp
 from .DatabaseModels import build_db, Machine, Machine_Type, Machine_State, connect_db, Record, Packet_Type
 
 def heartbeat_packet(db,serial_no,timestamp):
@@ -96,18 +96,18 @@ while True:
         hex_string = "".join("[%02x] " % b for b in datagram)
         print('received "%s"' % hex_string)
         machine_serial = datagram[0]
-        packet_timestamp = CGRP.CGR_TimeStamp(datagram)
-        if (CGRP.CGR_Type(datagram) == "Heartbeat"):
+        packet_timestamp = CGR_TimeStamp(datagram)
+        if (CGR_Type(datagram) == "Heartbeat"):
             heartbeat_packet(db,machine_serial,packet_timestamp)
-        if (CGRP.CGR_Type(datagram) == "Starting"):
+        if (CGR_Type(datagram) == "Starting"):
             starting_packet(db,machine_serial,packet_timestamp)
-        if (CGRP.CGR_Type(datagram) == "Started"):
-            packet_data = CGRP.CGR_Data(datagram)
+        if (CGR_Type(datagram) == "Started"):
+            packet_data = CGR_Data(datagram)
             started_packet(db,machine_serial,packet_timestamp,packet_data)
-        if (CGRP.CGR_Type(datagram) == "Running"):
-            packet_data = CGRP.CGR_Data(datagram)
+        if (CGR_Type(datagram) == "Running"):
+            packet_data = CGR_Data(datagram)
             running_packet(db,machine_serial,packet_timestamp,packet_data)
-        if (CGRP.CGR_Type(datagram) == "Shutdown"):
+        if (CGR_Type(datagram) == "Shutdown"):
             shutdown_packet(db, machine_serial, packet_timestamp)
 
     finally:
