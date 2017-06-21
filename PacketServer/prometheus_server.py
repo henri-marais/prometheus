@@ -1,5 +1,25 @@
 import socket
+import signal
 import sys
+
+def signal_handler(signal, frame):
+    print("Prometheus Packet Server - Get Ctrl-C")
+    print("Prometheus Packet Server - Closing the Socket")
+    nonlocal sock, connection
+    try:
+        connection.close()
+    except:
+        pass
+    try:
+        sock.close()
+    except:
+        pass
+    print("Prometheus Packet Server - All done. Bye Bye")
+    sys.exit()
+
+#hook the signal handler
+
+signal.signal(signal.SIGINT,signal_handler())
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
