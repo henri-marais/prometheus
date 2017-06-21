@@ -15,7 +15,7 @@ def heartbeat_packet(db,serial_no,timestamp):
     print("Record added")
 
 def starting_packet(db,serial_no,timestamp):
-    print("Making a starting packet for machine with serial no %s" % serial_no)
+    print("Making a <starting> packet for machine with serial no %s" % serial_no)
     machine = db.query(Machine).filter_by(serial_no=serial_no).one()
     packet_type = db.query(Packet_Type).filter_by(packet_name='Starting').one()
     record = Record(packet_timestamp=timestamp, machine=machine,
@@ -25,7 +25,7 @@ def starting_packet(db,serial_no,timestamp):
     print("Record added")
 
 def started_packet(db,serial_no,timestamp,data):
-    print("Making a starting packet for machine with serial no %s" % serial_no)
+    print("Making a <started> packet for machine with serial no %s" % serial_no)
     machine = db.query(Machine).filter_by(serial_no=serial_no).one()
     packet_type = db.query(Packet_Type).filter_by(packet_name='Started').one()
     record = Record(packet_timestamp=timestamp, machine=machine,
@@ -35,7 +35,7 @@ def started_packet(db,serial_no,timestamp,data):
     print("Record added")
 
 def running_packet(db,serial_no,timestamp,data):
-    print("Making a starting packet for machine with serial no %s" % serial_no)
+    print("Making a <running packet %s A> for machine with serial no %s" % (data,serial_no))
     machine = db.query(Machine).filter_by(serial_no=serial_no).one()
     packet_type = db.query(Packet_Type).filter_by(packet_name='Running').one()
     record = Record(packet_timestamp=timestamp, machine=machine,
@@ -45,7 +45,7 @@ def running_packet(db,serial_no,timestamp,data):
     print("Record added")
 
 def shutdown_packet(db,serial_no,timestamp):
-    print("Making a heartbeat packet for machine with serial no %s" % serial_no)
+    print("Making a <Shutdown packet> for machine with serial no %s" % serial_no)
     machine = db.query(Machine).filter_by(serial_no=serial_no).one()
     packet_type = db.query(Packet_Type).filter_by(packet_name='Shutdown').one()
     record = Record(packet_timestamp=timestamp, machine=machine,
