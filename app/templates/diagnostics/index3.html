@@ -138,8 +138,15 @@ function textDisabled(item_id, state) {
                 }
                 if (data.State){
                     fade_DX_delay("#DX_live_info");
-                    //textDisabled("text_state",false);
-                    $("#text_state").text(data.State);
+                    textDisabled("text_state",true);
+                    $("#text_state").text("Offline");
+                    var image = document.images[0];
+                    var download_image = new Image();
+                    download_image.onload = function(){
+                        image.src = this.src;
+                    };
+                    download_image.src =  "{{ url_for('static',filename='images/MIXER_OFFLINE.png') }}";
+                    fade_DX_delay("#DX_machine_image")
                 }
             },
             error: function () {
@@ -189,11 +196,53 @@ function UpdateUI(status_URL){
         if ('state' in data){
             textDisabled("text_state",false);
             $("#text_state").text(data['state']);
+            if (data['state']==="Stopped"){
+                var image = document.images[0];
+                var download_image = new Image();
+                download_image.onload = function(){image.src = this.src;};
+                download_image.src =  "{{ url_for('static',filename='images/MIXER_OFF.png') }}";
+            }else if (data['state'] === "Running"){
+                var image = document.images[0];
+                var download_image = new Image();
+                download_image.onload = function(){image.src = this.src;};
+                download_image.src =  "{{ url_for('static',filename='images/MIXER_RUNNING.gif') }}";
+            }else if (data['state'] === "Starting") {
+                var image = document.images[0];
+                var download_image = new Image();
+                download_image.onload = function(){image.src = this.src;};
+                download_image.src =  "{{ url_for('static',filename='images/MIXER_STARTING.png') }}";
+            }
         }
-        if (data['state'] !== 'REVOKED') {
+        if ('total_run_time' in data){
+            $("#text_uptime").text(data['total_run_time'])
+        }
+        if ('current_run_time' in data){
+            $("#text_runtime").text(data['current_run_time'])
+        }
+        if ('cycles' in data){
+            textDisabled("text_cycles",false);
+            $("#text_cycles").text(data['cycles'])
+        }
+        if ('motor_current' in data){
+            textDisabled("text_motor_current",false);
+            $("#text_motor_current").text(data['motor_current'])
+        }
+        if ('average_current' in data){
+            textDisabled("text_state",false);
+        }
+        if ((data['state'] !== 'Offline') && ($("#live_view_button").text()=="Disconnect")) {
             setTimeout(function () {
                 UpdateUI(status_URL);
-            }, 500);
+            }, 1000);
+        }else{
+            //Worker has terminated, mark machine as Offline
+            $("#text_state").text("Offline");
+            var image = document.images[0];
+            var download_image = new Image();
+            download_image.onload = function(){
+                image.src = this.src;
+            };
+            download_image.src =  "{{ url_for('static',filename='images/MIXER_OFFLINE.png') }}";
         }
     });
 }

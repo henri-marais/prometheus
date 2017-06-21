@@ -7,23 +7,21 @@ from sqlalchemy.orm.exc import MultipleResultsFound,NoResultFound
 import signal
 from .tasks import machine_liveView
 
+
 @diagnostics.route('/dashboard')
+@login_required
 def dashboard():
     machines = Machine.query.all()
     if len(machines)==0:
         machines = ['No machine configured']
     return render_template('/diagnostics/index3.html',machines=machines)
 
-@diagnostics.route('/historic', methods=['GET','POST'])
+@login_required
+@diagnostics.route('/historic', methods=['POST'])
 def historic():
     update_machine(request.get_json()['serial_no'])
     my_machine = Machine.query.filter_by(serial_no=request.get_json()['serial_no']).first()
-    hours = my_machine.running_time.days*24
-    h,s = divmod(my_machine.running_time.seconds,60*60*24)
-    hours = hours+h
-    m,s = divmod(s,60)
-    uptime = "%04d:%02d:%02d" % (hours, m,s)
-    return jsonify({'Cycles': my_machine.cycles, 'Uptime' : uptime, 'State':my_machine.state.state_name})
+    return jsonify({'Cycles': my_machine.cycles, 'Uptime' : pack_time(my_machine.running_time), 'State':my_machine.state.state_name})
 
 @diagnostics.route('/start', methods=['POST'])
 def machine_scanner_start():
@@ -46,26 +44,27 @@ def machine_scanner(task_id):
     task = machine_liveView.AsyncResult(task_id)
     print("Task ID state is %s" % task.state)
     response = {'state':task.state}
-    # if task.state == 'PENDING':
-    #     #Job did not start yet
-    #     response = {
-    #         'state': 'Connecting'
-    #     }
-    # elif task.state != 'FAILURE':
-    #     #This is essentially the normal operating state
-    #     response = {
-    #         'state': task.state,
-    #         'current': task.info.get()
-    #         'total': task.info.get('total',1),
-    #         'status': task.info.get('status','')
-    #     }
-    #     if 'result' in task.info:
-    #         response['result'] = task.info['result']
-    # else:
-    #     #Something went wrong, most likely the worker has crashed
-    #     response = {
-    #         'state': 'Crashed'
-    #     }
+    if task.state == 'PENDING':
+        #Job did not start yet
+        response = {
+            'state': 'Connecting'
+        }
+    elif task.state == 'REVOKED':
+        response= {'state': 'Offline'}
+    elif task.state != 'FAILURE':
+        #This is essentially the normal operating state
+        response = {
+        'total_run_time': pack_time(task.info.get('total_run_time')),
+        'current_run_time': pack_time(task.info.get('current_run_time')),
+        'cycles': task.info.get('cycles'),
+        'motor_current': task.info.get('motor_curremt'),
+        'average_current':'',
+        'state':task.info.get('state')}
+    else:
+        #Something went wrong, most likely the worker has crashed
+        response = {
+            'state': 'Crashed'
+        }
     return jsonify(response)
 
 def update_machine(serial_no):
@@ -105,3 +104,11 @@ def update_machine(serial_no):
                 db.session.commit()
     else:
         print("[Machine Updater] - No new records found.")
+
+def pack_time(ptime):
+    hours = ptime.days*24
+    h,s = divmod(ptime.seconds,60*60*24)
+    hours = hours+h
+    m,s = divmod(s,60)
+    uptime = "%04d:%02d:%02d" % (hours, m,s)
+    return uptime
