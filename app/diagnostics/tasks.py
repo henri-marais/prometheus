@@ -28,8 +28,11 @@ def machine_liveView(self,machine_serial_no):
     import os
     from app import celery, create_app
 
-    app = create_app(os.getenv('FLASK_CONFIG') or 'default')
-    app.app_context().push()
+    #This seems to be a quirk of running Celery on Windows
+    import os
+    if os.name=='nt':
+        app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+        app.app_context().push()
 
     while not kill:
         uri = current_app.config['SQLALCHEMY_DATABASE_URI']
