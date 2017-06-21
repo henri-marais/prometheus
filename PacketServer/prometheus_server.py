@@ -5,7 +5,7 @@ import sys
 def signal_handler(signal, frame):
     print("Prometheus Packet Server - Get Ctrl-C")
     print("Prometheus Packet Server - Closing the Socket")
-    nonlocal sock, connection
+    global sock, connection
     try:
         connection.close()
     except:
@@ -19,7 +19,7 @@ def signal_handler(signal, frame):
 
 #hook the signal handler
 
-signal.signal(signal.SIGINT,signal_handler())
+signal.signal(signal.SIGINT,signal_handler)
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
