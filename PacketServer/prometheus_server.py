@@ -25,7 +25,7 @@ signal.signal(signal.SIGINT,signal_handler)
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('0.0.0.0', 54000)
+server_address = ('127.0.0.1',54000 )
 print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 # Listen for incoming connections
