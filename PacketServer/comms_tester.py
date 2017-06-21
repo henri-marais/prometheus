@@ -15,27 +15,22 @@ print("Packet 4 time: %s, type: %s, data: %s" % (CGRP.CGR_TimeStamp(packet_4),CG
 print("Packet 5 time: %s, type: %s, data: %s" % (CGRP.CGR_TimeStamp(packet_5),CGRP.CGR_Type(packet_5),CGRP.CGR_Data(packet_5)))
 
 
-# Create a TCP/IP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def send2server(data):
+    # Create a TCP/IP socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Connect the socket to the port where the server is listening
+    server_ip = socket.gethostbyname('www.incidiumgroup.com')
+    server_address = (server_ip, 54321)
+    print('connecting to %s port %s' % server_address)
+    sock.connect(server_address)
+    print("Sending packet to server" % data)
+    sock.sendall(data)
+    sock.close()
+    print("Message sent")
 
-# Connect the socket to the port where the server is listening
-server_ip = socket.gethostbyname('www.incidiumgroup.com')
-server_address = (server_ip, 54321)
-print('connecting to %s port %s' % server_address)
-sock.connect(server_address)
-print("Sending packet_1 to server" % packet_1)
-sock.sendall(packet_1)
-print("Message sent")
-print("Sending packet_2 to server" % packet_2)
-sock.sendall(packet_2)
-print("Message sent")
-print("Sending packet_3 to server" % packet_3)
-sock.sendall(packet_3)
-print("Message sent")
-print("Sending packet_4 to server" % packet_4)
-sock.sendall(packet_4)
-print("Message sent")
-print("Sending packet_5 to server" % packet_5)
-sock.sendall(packet_5)
-print("Message sent")
-sock.close()
+
+send2server(packet_1)
+send2server(packet_2)
+send2server(packet_3)
+send2server(packet_4)
+send2server(packet_5)
