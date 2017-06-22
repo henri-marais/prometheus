@@ -6,6 +6,7 @@ from app.models import Machine, Machine_State, Record
 from sqlalchemy.orm.exc import MultipleResultsFound,NoResultFound
 import signal
 from .tasks import machine_liveView
+from celery.states import PENDING, REVOKED, FAILURE
 
 
 @diagnostics.route('/dashboard')
@@ -55,14 +56,14 @@ def machine_scanner(task_id):
     task = machine_liveView.AsyncResult(task_id)
     print("Task ID state is %s" % task.state)
     response = {'state':task.state}
-    if task.state == 'PENDING':
+    if task.state == PENDING:
         #Job did not start yet
         response = {
             'state': 'Connecting'
         }
-    elif task.state == 'REVOKED':
+    elif task.state == REVOKED:
         response= {'state': 'Offline'}
-    elif task.state != 'FAILURE':
+    elif task.state != FAILURE:
         #This is essentially the normal operating state
         response = {
         'total_run_time': task.info.get('total_run_time'),

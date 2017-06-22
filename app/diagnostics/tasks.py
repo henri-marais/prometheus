@@ -111,7 +111,7 @@ def machine_liveView(self,machine_serial_no):
             print("No new records found. Sleeping for 1s")
         live_data['current_run_time'] = pack_time(live_runtime)
         live_data['total_run_time'] = pack_time(live_totaltime)
-        self.update_state(state='RUNNING', meta=live_data)
+        self.update_state(state='COMPUTING', meta=live_data)
         # if live_data['state'] == 'Stopped':
         #     live_data['current_run_time'] = timedelta(0)
         time.sleep(1)
