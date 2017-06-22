@@ -4,13 +4,14 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block navbar_left %}
-    <li><a href="{{ url_for('main.dashboard') }}">Home</a></li>
+    {{ super() }}
+  <!--  <li><a href="{{ url_for('main.dashboard') }}">Home</a></li>
     <li class="dropdown {% if machine['menu'] == False %} disabled{% endif %}">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Machines<span class="caret"></span></a>
         <ul class="dropdown-menu">
-            <li><a href="#">Proto Tester</a></li>
-            <li><a href="#">Chinese Office</a></li>
-            <li><a href="#">CGR HQ Demo</a></li>
+            <li><a href="{{ url_for('diagnostics.dashboard')}}">Live Dashboard</a></li>
+            <li><a href="#">Machine Maintenance</a></li>
+            <li><a href="#">Manual Data</a></li>
         </ul>
     </li>
     <li class="dropdown">
@@ -19,8 +20,7 @@
             <li><a href="{{ url_for('auth.register') }}">Register new user</a></li>
             <li class="disabled"><a href="#">Delete existing user</a></li>
         </ul>
-    </li>
-
+    </li>-->
 {% endblock %}
 
 {% block page_content %}

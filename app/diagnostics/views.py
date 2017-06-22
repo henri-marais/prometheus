@@ -55,14 +55,16 @@ def machine_scanner(task_id):
     print("Waiting for reply from Celery worker")
     task = machine_liveView.AsyncResult(task_id)
     print("Task ID state is %s" % task.state)
-    response = {'state':task.state}
+    response = {'worker_state':task.state}
     if task.state == PENDING:
         #Job did not start yet
         response = {
-            'state': 'Connecting'
+            'state': 'Connecting',
+            'worker_state': task.state
         }
     elif task.state == REVOKED:
-        response= {'state': 'Offline'}
+        response= {'state': 'Offline',
+                   'worker_state': task.state}
     elif task.state != FAILURE:
         #This is essentially the normal operating state
         response = {
@@ -71,11 +73,13 @@ def machine_scanner(task_id):
         'cycles': task.info.get('cycles'),
         'motor_current': task.info.get('motor_current'),
         'average_current':'',
-        'state':task.info.get('state')}
+        'state':task.info.get('state'),
+        'worker_state': task.state}
     else:
         #Something went wrong, most likely the worker has crashed
         response = {
-            'state': task.state
+            'state': task.state,
+            'worker_state': task.state
         }
     return jsonify(response)
 

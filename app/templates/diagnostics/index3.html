@@ -67,6 +67,11 @@
             </div>
 		</div>
     </div>
+    <div class="row bottom-space" id="DX_footer_row">
+        <div class="column">
+            <p><b>Worker status   :</b><p class="text-muted" id="text_worker_state">worker is offline</p>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -121,9 +126,10 @@ function textDisabled(item_id, state) {
     $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
     fade_DX_delay("#DX_historic_info");
     //Theoretically do an ajax call here to obtain the relevant information of the machine in question
+        var index = (document.getElementsByClassName("dropdown-toggle").length)-1;
         $.ajax({
             dataType: 'json',
-            data: JSON.stringify({"serial_no":document.getElementsByClassName("dropdown-toggle")[0].value}),
+            data: JSON.stringify({"serial_no":document.getElementsByClassName("dropdown-toggle")[index].value}),
             contentType: "application/json",
             type: 'POST',
             url: '/diagx/historic',
@@ -148,6 +154,9 @@ function textDisabled(item_id, state) {
                     download_image.src =  "{{ url_for('static',filename='images/MIXER_OFFLINE.png') }}";
                     fade_DX_delay("#DX_machine_image")
                 }
+                if ('worker_state' in data){
+                    $("#text_worker_state").text(data['worker_state']);
+                }
             },
             error: function () {
                 alert('ERROR: AJAX retrieving historic info!');
@@ -159,14 +168,15 @@ function textDisabled(item_id, state) {
     </script>
 <script>
 function StartLiveView(){
-    if (document.getElementsByClassName("dropdown-toggle")[0].value == 0){
+    var index = (document.getElementsByClassName("dropdown-toggle").length)-1;
+    if (document.getElementsByClassName("dropdown-toggle")[index].value == 0){
         alert('Please select a machine!')
     }else{
 
         $.ajax({
             datatype: 'json',
             data: JSON.stringify({
-                "serial":document.getElementsByClassName("dropdown-toggle")[0].value,
+                "serial":document.getElementsByClassName("dropdown-toggle")[index].value,
                 "action":$("#live_view_button").html()
             }),
             contentType: "application/json",
@@ -175,10 +185,10 @@ function StartLiveView(){
             success: function (data, status, request) {
                 status_url = request.getResponseHeader('Location');
                 $("#live_view_button").html("Disconnect");
-                urlChunks = status_url.split('/');
-                if (urlChunks[urlChunks.length - 1] != 'Done'){
+                if (status == "success") {
                     UpdateUI(status_url);
-                }else{
+                }
+                if (status == "nocontent"){
                     $("#live_view_button").html("Connect");
                 }
 
@@ -230,6 +240,9 @@ function UpdateUI(status_URL){
         if ('average_current' in data){
             textDisabled("text_state",false);
         }
+        if ('worker_state' in data){
+            $("#text_worker_state").text(data['worker_state']);
+        }
         if ((data['state'] !== 'Offline') && ($("#live_view_button").text()=="Disconnect")) {
             setTimeout(function () {
                 UpdateUI(status_URL);
@@ -243,6 +256,9 @@ function UpdateUI(status_URL){
                 image.src = this.src;
             };
             download_image.src =  "{{ url_for('static',filename='images/MIXER_OFFLINE.png') }}";
+            if ('worker_state' in data){
+                $("#text_worker_state").text(data['worker_state']);
+            }
         }
     });
 }

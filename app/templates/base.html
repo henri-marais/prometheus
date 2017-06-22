@@ -22,10 +22,39 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">Prometheus</a>
+            {% if current_user.is_authenticated %}
+                <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">Prometheus</a>
+            {% else %}
+                <a class="navbar-brand" href="{{ url_for('main.index') }}">Prometheus</a>
+            {% endif %}
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
+            {% if current_user.is_authenticated %}
+
+
+                <li><a href="{{ url_for('main.dashboard') }}">Home</a></li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Machines<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('diagnostics.dashboard')}}">Live Dashboard</a></li>
+                        <li><a href="#">Machine Maintenance</a></li>
+                        <li><a href="#">Manual Data</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Users<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('auth.register') }}">Register new user</a></li>
+                        <li class="disabled"><a href="#">Delete existing user</a></li>
+                    </ul>
+                </li>
+
+
+
+
+
+            {% endif %}
                 {% block navbar_left %}
                 {% endblock %}
             </ul>

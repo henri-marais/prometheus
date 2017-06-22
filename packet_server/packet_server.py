@@ -120,7 +120,7 @@ while True:
             if (CGR_Type(datagram) == "Shutdown"):
                 shutdown_packet(db, machine_serial, packet_timestamp)
         except:
-            printf("Machine not in databse. Packet will be rejected")
+            print("Machine not in databse. Packet will be rejected")
             #if not show the data that would have arrived
             packet_timestamp = CGR_TimeStamp(datagram)
             if (CGR_Type(datagram) == "Heartbeat"):
