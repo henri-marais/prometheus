@@ -23,7 +23,7 @@
     </div>
     <div class="row bottom-space" id="DX_info_row">
 		<div class="col-sm-4 text-center diagnostic_info" id="DX_machine_image">
-            <img class="img-responsive center-block" alt="Bootstrap Image Preview" src="{{ url_for('static',filename='images/mixer_unknown.png') }}"/>
+            <img class="img-responsive center-block" alt="Bootstrap Image Preview" src="{{ url_for('static',filename='images/MIXER_UNKNOWN.png') }}"/>
 		</div>
 		<div class="col-sm-4 text-center diagnostic_info" id="DX_live_info">
 			<h4 class="bottom-space">
@@ -128,7 +128,7 @@ function textDisabled(item_id, state) {
             type: 'POST',
             url: '/diagx/historic',
             success: function (data, status, request) {
-                if (data.Cycles){
+                if ('Cycles' in data){
                     textDisabled("text_cycles",false);
                     $("#text_cycles").text(data.Cycles)
                 }
@@ -225,7 +225,7 @@ function UpdateUI(status_URL){
         }
         if ('motor_current' in data){
             textDisabled("text_motor_current",false);
-            $("#text_motor_current").text(data['motor_current'])
+            $("#text_motor_current").text(data['motor_current']+ 'A')
         }
         if ('average_current' in data){
             textDisabled("text_state",false);
