@@ -9,7 +9,6 @@ import random, time
 import signal
 from billiard.exceptions import Terminated
 from datetime import datetime, timedelta
-from .views import pack_time
 
 @celery.task(bind=True, throws=(Terminated,))
 def machine_liveView(self,machine_serial_no):
@@ -45,6 +44,13 @@ def machine_liveView(self,machine_serial_no):
         'state':''
     }
 
+    def pack_time(ptime):
+        hours = ptime.days * 24
+        h, s = divmod(ptime.seconds, 60 * 60 * 24)
+        hours = hours + h
+        m, s = divmod(s, 60)
+        uptime = "%04d:%02d:%02d" % (hours, m, s)
+        return uptime
     #Before the packet scanner activity starts, make sure that the most recent information is available.
     #Since this is only the live viewer, no changes will be made to the underlying DB. Only loads of queries
 
@@ -110,11 +116,3 @@ def machine_liveView(self,machine_serial_no):
         session.close()
     return False
 
-    # 'total_run_time': '',
-    # 'current_run_time': '',
-    # 'cycles': '',
-    # 'motor_current': '',
-    # 'average_current': '',
-    # 'state': ''
-
-# self.update_state(state='PROGRESS',meta={'current': i, 'total': total,'status': message})
