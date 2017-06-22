@@ -61,10 +61,12 @@ def machine_liveView(self,machine_serial_no):
     my_machine = session.query(Machine).filter_by(serial_no=machine_serial_no).one()
 
     live_data['cycles'] = my_machine.cycles
-    live_data['total_run_time'] = my_machine.running_time
+    live_data['total_run_time'] = 'unknown'
     live_data['state'] = my_machine.state.state_name
-    live_data['current_run_time'] = timedelta(0)
+    live_data['current_run_time'] = 'unknown'
     live_timestamp = my_machine.last_update
+    live_runtime = timedelta(0)
+    live_totaltime = my_machine.running_time
 
     while not kill:
         new_records = session.query(Record).filter_by(machine = my_machine)\
@@ -81,11 +83,11 @@ def machine_liveView(self,machine_serial_no):
                                 (live_data['state'] != 'Error')):
                         #update the running time based on packets that can actually induce running time behaviour
                         print("[Machine Scanner Task] Updating the current running time")
-                        live_data['current_run_time'] += record.packet_timestamp-live_timestamp
-                        print("[Machine Scanner Task] Maching runnign time (current): %s" % live_data['total_run_time'])
+                        live_runtime += record.packet_timestamp-live_timestamp
+                        print("[Machine Scanner Task] Maching runnign time (current): %s" % live_runtime)
                         print("[Machine Scanner Task] Updating the running time of te machine")
-                        live_data['total_run_time'] += record.packet_timestamp-live_timestamp
-                        print("[Machine Scanner Task] Maching runnign time (total): %s" % live_data['total_run_time'])
+                        live_totaltime += record.packet_timestamp-live_timestamp
+                        print("[Machine Scanner Task] Maching runnign time (total): %s" % live_totaltime)
                     live_timestamp = record.packet_timestamp
                     live_data['state'] = machine_state_in_packet.state_name
                     if live_data['state'] == "Running":
@@ -107,8 +109,8 @@ def machine_liveView(self,machine_serial_no):
                         my_machine.state = session.query(Machine_State).filter_by(state_name="Stopped").one()
         else:
             print("No new records found. Sleeping for 1s")
-        live_data['current_run_time'] = pack_time(live_data['current_run_time'])
-        live_data['total_run_time'] = pack_time(live_data['total_run_time'])
+        live_data['current_run_time'] = pack_time(live_runtime)
+        live_data['total_run_time'] = pack_time(live_totaltime)
         self.update_state(state='RUNNING', meta=live_data)
         # if live_data['state'] == 'Stopped':
         #     live_data['current_run_time'] = timedelta(0)
