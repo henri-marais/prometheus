@@ -19,9 +19,20 @@ def dashboard():
 @login_required
 @diagnostics.route('/historic', methods=['POST'])
 def historic():
-    update_machine(request.get_json()['serial_no'])
-    my_machine = Machine.query.filter_by(serial_no=request.get_json()['serial_no']).first()
-    return jsonify({'Cycles': my_machine.cycles, 'Uptime' : pack_time(my_machine.running_time), 'State':my_machine.state.state_name})
+    response ={
+        'Cycles':'-1',
+        'Uptime':'nodata',
+        'State':'unknown'
+    }
+    try:
+        update_machine(request.get_json()['serial_no'])
+        my_machine = Machine.query.filter_by(serial_no=request.get_json()['serial_no']).first()
+        response['Cycles'] = my_machine.cycles
+        response['Uptime'] = pack_time(my_machine.running_time)
+        response['State'] = my_machine.state.state_name
+    except:
+        pass
+    return jsonify(response)
 
 @diagnostics.route('/start', methods=['POST'])
 def machine_scanner_start():
@@ -63,7 +74,7 @@ def machine_scanner(task_id):
     else:
         #Something went wrong, most likely the worker has crashed
         response = {
-            'state': 'Crashed'
+            'state': task.state
         }
     return jsonify(response)
 
@@ -112,3 +123,4 @@ def pack_time(ptime):
     m,s = divmod(s,60)
     uptime = "%04d:%02d:%02d" % (hours, m,s)
     return uptime
+
