@@ -83,6 +83,7 @@ sock.bind(server_address)
 sock.listen(1)
 print("Trying to connect to DB @ " + 'sqlite:///' + '/home/ubuntu/git/prometheus/data-dev.sqlite')
 db = connect_db('sqlite:///' + '/home/ubuntu/git/prometheus/data-dev.sqlite')
+
 while True:
     # Wait for a connection
     print('waiting for a connection')
@@ -131,3 +132,4 @@ while True:
     finally:
         # Clean up the connection
         connection.close()
+        db.close()
