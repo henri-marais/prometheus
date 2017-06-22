@@ -38,8 +38,8 @@
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Machines<span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('diagnostics.dashboard')}}">Live Dashboard</a></li>
-                        <li><a href="#">Machine Maintenance</a></li>
-                        <li><a href="#">Manual Data</a></li>
+                        <li><a href="{{ url_for('machines.add') }}">Add Machine</a></li>
+                        <li><a href="{{ url_for('machines.remove') }}">Remove Machine</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
