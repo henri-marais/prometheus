@@ -10,7 +10,7 @@ import signal
 from billiard.exceptions import Terminated
 from datetime import datetime, timedelta
 
-@celery.task(bind=True, throws=(Terminated,), task_track_started=True)
+@celery.task(bind=True, throws=(Terminated,))
 def machine_liveView(self,machine_serial_no):
     """Background task that determines the state of a machine and returns it to the user"""
     def handler(signum, frame):
@@ -101,8 +101,8 @@ def machine_liveView(self,machine_serial_no):
         else:
             print("No new records found. Sleeping for 1s")
         self.update_state(state='RUNNING', meta=live_data)
-        if live_data['state'] == 'Stopped':
-            live_data['current_run_time'] = timedelta(0)
+        # if live_data['state'] == 'Stopped':
+        #     live_data['current_run_time'] = timedelta(0)
         time.sleep(1)
         session.close()
     return False
