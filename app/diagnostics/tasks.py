@@ -9,6 +9,7 @@ import random, time
 import signal
 from billiard.exceptions import Terminated
 from datetime import datetime, timedelta
+from .views import pack_time
 
 @celery.task(bind=True, throws=(Terminated,))
 def machine_liveView(self,machine_serial_no):
@@ -100,6 +101,8 @@ def machine_liveView(self,machine_serial_no):
                         my_machine.state = session.query(Machine_State).filter_by(state_name="Stopped").one()
         else:
             print("No new records found. Sleeping for 1s")
+        live_data['current_run_time'] = pack_time(live_data['current_run_time'])
+        live_data['total_run_time'] = pack_time(live_data['total_run_time'])
         self.update_state(state='RUNNING', meta=live_data)
         # if live_data['state'] == 'Stopped':
         #     live_data['current_run_time'] = timedelta(0)
@@ -107,5 +110,11 @@ def machine_liveView(self,machine_serial_no):
         session.close()
     return False
 
+    # 'total_run_time': '',
+    # 'current_run_time': '',
+    # 'cycles': '',
+    # 'motor_current': '',
+    # 'average_current': '',
+    # 'state': ''
 
 # self.update_state(state='PROGRESS',meta={'current': i, 'total': total,'status': message})
