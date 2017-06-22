@@ -96,19 +96,37 @@ while True:
         hex_string = "".join("[%02x] " % b for b in datagram)
         print('received "%s"' % hex_string)
         machine_serial = datagram[0]
-        packet_timestamp = CGR_TimeStamp(datagram)
-        if (CGR_Type(datagram) == "Heartbeat"):
-            heartbeat_packet(db,machine_serial,packet_timestamp)
-        if (CGR_Type(datagram) == "Starting"):
-            starting_packet(db,machine_serial,packet_timestamp)
-        if (CGR_Type(datagram) == "Started"):
-            packet_data = CGR_Data(datagram)
-            started_packet(db,machine_serial,packet_timestamp,packet_data)
-        if (CGR_Type(datagram) == "Running"):
-            packet_data = CGR_Data(datagram)
-            running_packet(db,machine_serial,packet_timestamp,packet_data)
-        if (CGR_Type(datagram) == "Shutdown"):
-            shutdown_packet(db, machine_serial, packet_timestamp)
+        try:
+            #first see if the machine exists
+            db.query(Machine).filter_by(serial_no=machine_serial).one()
+            packet_timestamp = CGR_TimeStamp(datagram)
+            if (CGR_Type(datagram) == "Heartbeat"):
+                heartbeat_packet(db, machine_serial, packet_timestamp)
+            if (CGR_Type(datagram) == "Starting"):
+                starting_packet(db, machine_serial, packet_timestamp)
+            if (CGR_Type(datagram) == "Started"):
+                packet_data = CGR_Data(datagram)
+                started_packet(db, machine_serial, packet_timestamp, packet_data)
+            if (CGR_Type(datagram) == "Running"):
+                packet_data = CGR_Data(datagram)
+                running_packet(db, machine_serial, packet_timestamp, packet_data)
+            if (CGR_Type(datagram) == "Shutdown"):
+                shutdown_packet(db, machine_serial, packet_timestamp)
+        except:
+            #if not show the data that would have arrived
+            packet_timestamp = CGR_TimeStamp(datagram)
+            if (CGR_Type(datagram) == "Heartbeat"):
+                print("Heartbeat from unregistered @ %s" % CGR_TimeStamp(datagram))
+            if (CGR_Type(datagram) == "Starting"):
+                print("Starting from unregistered @ %s" % CGR_TimeStamp(datagram))
+            if (CGR_Type(datagram) == "Started"):
+                packet_data = CGR_Data(datagram)
+                print("Started from unregistered @ %s, peak of %d A" % (CGR_TimeStamp(datagram), packet_data))
+            if (CGR_Type(datagram) == "Running"):
+                packet_data = CGR_Data(datagram)
+                print("Running from unregistered @ %s, run on %d A" % (CGR_TimeStamp(datagram), packet_data))
+            if (CGR_Type(datagram) == "Shutdown"):
+                print("Shutdown from unregistered @ %s" % CGR_TimeStamp(datagram))
 
     finally:
         # Clean up the connection
