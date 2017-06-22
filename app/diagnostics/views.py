@@ -65,8 +65,8 @@ def machine_scanner(task_id):
     elif task.state != 'FAILURE':
         #This is essentially the normal operating state
         response = {
-        'total_run_time': task.info.get('total_run_time')),
-        'current_run_time': task.info.get('current_run_time')),
+        'total_run_time': task.info.get('total_run_time'),
+        'current_run_time': task.info.get('current_run_time'),
         'cycles': task.info.get('cycles'),
         'motor_current': task.info.get('motor_current'),
         'average_current':'',
