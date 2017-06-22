@@ -81,8 +81,8 @@ print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 # Listen for incoming connections
 sock.listen(1)
-print("Trying to connect to DB @ " + 'sqlite:///' + sys.argv[1])
-db = connect_db('sqlite:///' + sys.argv[1])
+print("Trying to connect to DB @ " + 'sqlite:///' + '/home/ubuntu/git/prometheus/data-dev.sqlite')
+db = connect_db('sqlite:///' + '/home/ubuntu/git/prometheus/data-dev.sqlite')
 while True:
     # Wait for a connection
     print('waiting for a connection')
