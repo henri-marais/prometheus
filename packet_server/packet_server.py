@@ -81,8 +81,7 @@ print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 # Listen for incoming connections
 sock.listen(1)
-print("Trying to connect to DB @ " + 'sqlite:///' + '/home/ubuntu/git/prometheus/data-dev.sqlite')
-db = connect_db('sqlite:///' + '/home/ubuntu/git/prometheus/data-dev.sqlite')
+
 
 while True:
     # Wait for a connection
@@ -98,6 +97,9 @@ while True:
         print('received "%s"' % hex_string)
         machine_serial = datagram[0]
         try:
+            print("Trying to connect to DB @ " + 'sqlite:///' + '/home/ubuntu/git/prometheus/data-dev.sqlite')
+            db = connect_db('sqlite:///' + '/home/ubuntu/git/prometheus/data-dev.sqlite')
+            print("Connected to DB!!")
             #first see if the machine exists
             db.query(Machine).filter_by(serial_no=machine_serial).one()
             packet_timestamp = CGR_TimeStamp(datagram)
@@ -133,3 +135,4 @@ while True:
         # Clean up the connection
         connection.close()
         db.close()
+        print("Database Closed!!")
