@@ -2,11 +2,12 @@ from flask import render_template, redirect, url_for, flash, request, session, j
 from flask_login import login_user, logout_user, login_required, current_user, fresh_login_required
 from . import diagnostics
 from app import celery,db
-from app.models import Machine, Machine_State, Record
+from app.models import Machine, Machine_State, Record, Packet_Type
 from sqlalchemy.orm.exc import MultipleResultsFound,NoResultFound
 import signal
 from .tasks import machine_liveView
 from celery.states import PENDING, REVOKED, FAILURE, SUCCESS
+from datetime import datetime
 
 
 @diagnostics.route('/dashboard')
@@ -33,10 +34,28 @@ def historic():
         response['Cycles'] = my_machine.cycles
         response['Uptime'] = pack_time(my_machine.running_time)
         response['State'] = my_machine.state.state_name
-        response['AvgRunCurrent'] = format("%2.0d A",avg_running_current)
+        if avg_running_current == 0:
+            response['AvgRunCurrent'] = "No data"
+        else:
+            response['AvgRunCurrent'] = "{:2.2f} A".format(avg_running_current)
     except:
         pass
     return jsonify(response)
+
+@diagnostics.route('/packet_loader', methods=['POST'])
+def packet_loader():
+    if request.get_json()['serial_no'] == "1":
+        my_machine = Machine.query.filter_by(serial_no=request.get_json()['serial_no']).one()
+        this_packet = Packet_Type.query.filter_by(packet_name=request.get_json()['type']).one()
+        if 'data' in request.get_json():
+            new_record = Record(machine=my_machine, packet_type= this_packet, packet_timestamp= datetime.utcnow()
+                            , packet_data= float(request.get_json()['data']))
+        else:
+            new_record = Record(machine=my_machine, packet_type=this_packet, packet_timestamp=datetime.utcnow())
+        db.session.add(new_record)
+        db.session.commit()
+
+    return jsonify({}), 200
 
 @diagnostics.route('/start', methods=['POST'])
 def machine_scanner_start():
@@ -77,7 +96,7 @@ def machine_scanner(task_id):
         'total_run_time': task.info.get('total_run_time'),
         'current_run_time': task.info.get('current_run_time'),
         'cycles': task.info.get('cycles'),
-        'motor_current': format("%2.2d A",task.info.get('motor_current')),
+        'motor_current': "{:2.2f} A".format(task.info.get('motor_current')),
         'average_current':'',
         'state':task.info.get('state'),
         'worker_state': task.state}
@@ -130,11 +149,15 @@ def update_machine(serial_no):
 def update_machine_avgCurrent(serial_no):
     print("Calculating average run current")
     my_machine = Machine.query.filter_by(serial_no=serial_no).one()
-    records = Record.query.filter(machine == my_machine).filter(packet_type.packet_name == "Running").all();
-    total_current = 0
-    for record in records:
-        total_current += record.packet_data
-    avg_current = total_current / len(records)
+    running = Packet_Type.query.filter_by(packet_name='Running').one()
+    records = Record.query.filter_by(machine= my_machine).filter_by(packet_type=running).all()
+    if len(records) > 0:
+        total_current = 0
+        for record in records:
+            total_current += record.packet_data
+        avg_current = total_current / len(records)
+    else:
+        avg_current = 0
     return avg_current
 
 def pack_time(ptime):

@@ -61,7 +61,7 @@
                 <div class="col-xs-5 text-left">
                     <p class="text-muted" id="text_cycles">-1</p>
                     <p class="text-muted" id="text_uptime"></p>
-                    <p class="text-muted" id="text_avg_motor_current"><b>TODO</b></p>
+                    <p class="text-muted" id="text_avg_motor_current"></p>
                 </div>
                 <div class="col-xs-1"></div>
             </div>
@@ -72,6 +72,22 @@
             <p><b>Worker status   :</b><p class="text-muted" id="text_worker_state">worker is offline</p>
         </div>
     </div>
+{% block footer %}
+  <div class="navbar navbar-default navbar-fixed-bottom diagnostic_info" id="footer_menu">
+    <div class="container">
+      <p class="navbar-text pull-left">© 2014 - Site Built By Dr. H. Marais</p>
+
+        <a href="#" class="navbar-btn btn" id="packet_starting">Starting</a>
+        <a href="#" class="navbar-btn btn" id="packet_started">Started</a>
+        <input id="packet_current" text="Current" value="0.00">
+        <a href="#" class="navbar-btn btn" id="packet_running">Running</a>
+        <a href="#" class="navbar-btn btn" id="packet_overload">Overload</a>
+        <a href="#" class="navbar-btn btn" id="packet_shutdown">Stopped</a>
+        <a href="#" class="navbar-btn btn" id="packet_heartbeat">Heartbeat</a>
+
+    </div>
+  </div>
+{% endblock %}
 </div>
 {% endblock %}
 
@@ -88,6 +104,7 @@
 
 {% block scripts %}
 {{ super() }}
+
     <script> document.write('<style>.diagnostic_info { visibility: hidden; } </style>'); </script>
 
 <script type="text/javascript">
@@ -124,7 +141,15 @@ function textDisabled(item_id, state) {
     $(".dropdown-menu li a").click(function(){
     $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
     $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
-    fade_DX_delay("#DX_historic_info");
+    initFadeIn("#DX_historic_info");
+    if ($(this).text() == "Virtual Mixer"){
+        initFadeIn("#footer_menu")
+   //     fade_DX_delay("DX_historic_info");
+    }else{
+        $("#footer_menu").fadeOut(1200)
+  //      fade_DX_delay("DX_historic_info");
+    }
+
     //Theoretically do an ajax call here to obtain the relevant information of the machine in question
         var index = (document.getElementsByClassName("dropdown-toggle").length)-1;
         $.ajax({
@@ -144,7 +169,7 @@ function textDisabled(item_id, state) {
                 }
                 if ('AvgRunCurrent' in data){
                     textDisabled("text_uptime",false);
-                    $("text_avg_motor_current").text(data['AvgRunCurrent'])
+                    $("#text_avg_motor_current").text(data['AvgRunCurrent'])
                 }
                 if (data.State){
                     fade_DX_delay("#DX_live_info");
@@ -242,7 +267,7 @@ function UpdateUI(status_URL){
             $("#text_motor_current").text(data['motor_current'])
         }
         if ('average_current' in data){
-            textDisabled("text_state",false);
+            textDisabled("text_average_current",false);
         }
         if ('worker_state' in data){
             $("#text_worker_state").text(data['worker_state']);
@@ -267,10 +292,110 @@ function UpdateUI(status_URL){
     });
 }
 </script>
+
 <script src="{{ url_for('static',filename="js/jquery.blockUI.js")}}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
        //$("#row_info").block({message:null});
     });
 </script>
+
+<script>
+$(document).ready(function(){
+    $("#packet_starting").click(function(){
+        var index = (document.getElementsByClassName("dropdown-toggle").length)-1;
+        $.ajax({
+            type: "POST",
+            url: "{{ url_for('diagnostics.packet_loader') }}",
+            data: JSON.stringify({
+                "serial_no": document.getElementsByClassName("dropdown-toggle")[index].value,
+                "type": "Starting"
+            }),
+            contentType: "application/json",
+            success: alert("Loaded a starting packet for Virtual Mixer"),
+            dataType: 'json'
+        })
+    });
+
+
+    $("#packet_started").click(function(){
+        var index = (document.getElementsByClassName("dropdown-toggle").length)-1;
+        $.ajax({
+            type: "POST",
+            url: "{{ url_for('diagnostics.packet_loader') }}",
+            data: JSON.stringify({
+                "serial_no": document.getElementsByClassName("dropdown-toggle")[index].value,
+                "type": "Started"
+            }),
+            contentType: "application/json",
+            success: alert("Loaded a started packet for Virtual Mixer"),
+            dataType: 'json'
+        })
+    });
+    $("#packet_running").click(function(){
+        var index = (document.getElementsByClassName("dropdown-toggle").length)-1;
+        $.ajax({
+            type: "POST",
+            url: "{{ url_for('diagnostics.packet_loader') }}",
+            data: JSON.stringify({
+                "serial_no": document.getElementsByClassName("dropdown-toggle")[index].value,
+                "type": "Running",
+                "data": $("#packet_current").val(),
+            }),
+            contentType: "application/json",
+            success: alert("Loaded a running packet for Virtual Mixer"),
+            dataType: 'json'
+        })
+    });
+    $("#packet_overlaod").click(function(){
+{#        var index = (document.getElementsByClassName("dropdown-toggle").length)-1;#}
+{#        $.ajax({#}
+{#            type: "POST",#}
+{#            url: "{{ url_for('diagnostics.packet_loader') }}",#}
+{#            data: JSON.stringify({#}
+{#                "serial_no": document.getElementsByClassName("dropdown-toggle")[index].value,#}
+{#                "type": "Running"#}
+{#                "data": $("packet_current").val(),#}
+{#            }),#}
+{#            contentType: "application/json",#}
+{#            success: alert("Loaded a running packet for Virtual Mixer"),#}
+{#            dataType: 'json'#}
+{#        })#}
+    });
+    $("#packet_shutdown").click(function(){
+        var index = (document.getElementsByClassName("dropdown-toggle").length)-1;
+        $.ajax({
+            type: "POST",
+            url: "{{ url_for('diagnostics.packet_loader') }}",
+            data: JSON.stringify({
+                "serial_no": document.getElementsByClassName("dropdown-toggle")[index].value,
+                "type": "Shutdown"
+            }),
+            contentType: "application/json",
+            success: alert("Loaded a shutdown packet for Virtual Mixer"),
+            dataType: 'json'
+        })
+    });
+    $("#packet_heartbeat").click(function(){
+        var index = (document.getElementsByClassName("dropdown-toggle").length)-1;
+        $.ajax({
+            type: "POST",
+            url: "{{ url_for('diagnostics.packet_loader') }}",
+            data: JSON.stringify({
+                "serial_no": document.getElementsByClassName("dropdown-toggle")[index].value,
+                "type": "Heartbeat"
+            }),
+            contentType: "application/json",
+            success: alert("Loaded a heartbeat packet for Virtual Mixer"),
+            dataType: 'json'
+        })
+    });
+
+
+
+
+});
+
+</script>
+
 {% endblock %}
