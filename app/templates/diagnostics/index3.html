@@ -61,7 +61,7 @@
                 <div class="col-xs-5 text-left">
                     <p class="text-muted" id="text_cycles">-1</p>
                     <p class="text-muted" id="text_uptime"></p>
-                    <p class="text-danger" id="text_avg_motor_current"><b>TODO</b></p>
+                    <p class="text-muted" id="text_avg_motor_current"><b>TODO</b></p>
                 </div>
                 <div class="col-xs-1"></div>
             </div>
@@ -141,6 +141,10 @@ function textDisabled(item_id, state) {
                 if (data.Uptime){
                     textDisabled("text_uptime",false);
                     $("#text_uptime").text(data.Uptime)
+                }
+                if ('AvgRunCurrent' in data){
+                    textDisabled("text_uptime",false);
+                    $("text_avg_motor_current").text(data.AvgRunCurrent)
                 }
                 if (data.State){
                     fade_DX_delay("#DX_live_info");
@@ -235,7 +239,7 @@ function UpdateUI(status_URL){
         }
         if ('motor_current' in data){
             textDisabled("text_motor_current",false);
-            $("#text_motor_current").text(data['motor_current']+ 'A')
+            $("#text_motor_current").text(data['motor_current'])
         }
         if ('average_current' in data){
             textDisabled("text_state",false);

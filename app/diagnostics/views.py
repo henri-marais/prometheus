@@ -21,16 +21,19 @@ def dashboard():
 @diagnostics.route('/historic', methods=['POST'])
 def historic():
     response ={
-        'Cycles':'-1',
+        'Cycles':'unknown',
         'Uptime':'nodata',
-        'State':'unknown'
+        'State':'unknown',
+        'AvgRunCurrent': 'unknown'
     }
     try:
         update_machine(request.get_json()['serial_no'])
         my_machine = Machine.query.filter_by(serial_no=request.get_json()['serial_no']).first()
+        avg_running_current = update_machine_avgCurrent(request.get_json()['serial_no'])
         response['Cycles'] = my_machine.cycles
         response['Uptime'] = pack_time(my_machine.running_time)
         response['State'] = my_machine.state.state_name
+        response['AvgRunCurrent'] = format("%2.0d A",avg_running_current)
     except:
         pass
     return jsonify(response)
@@ -74,7 +77,7 @@ def machine_scanner(task_id):
         'total_run_time': task.info.get('total_run_time'),
         'current_run_time': task.info.get('current_run_time'),
         'cycles': task.info.get('cycles'),
-        'motor_current': task.info.get('motor_current'),
+        'motor_current': format("%2.2d A",task.info.get('motor_current')),
         'average_current':'',
         'state':task.info.get('state'),
         'worker_state': task.state}
@@ -123,6 +126,16 @@ def update_machine(serial_no):
                 db.session.commit()
     else:
         print("[Machine Updater] - No new records found.")
+
+def update_machine_avgCurrent(serial_no):
+    print("Calculating average run current")
+    my_machine = Machine.query.filter_by(serial_no=serial_no).one()
+    records = Record.query.filter(machine == my_machine).filter(packet_type.packet_name == "Running").all();
+    total_current = 0
+    for record in records:
+        total_current += record.packet_data
+    avg_current = total_current / len(records)
+    return avg_current
 
 def pack_time(ptime):
     hours = ptime.days*24
