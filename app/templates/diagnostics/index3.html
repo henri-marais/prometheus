@@ -144,7 +144,7 @@ function textDisabled(item_id, state) {
                 }
                 if ('AvgRunCurrent' in data){
                     textDisabled("text_uptime",false);
-                    $("text_avg_motor_current").text(data.AvgRunCurrent)
+                    $("text_avg_motor_current").text(data['AvgRunCurrent'])
                 }
                 if (data.State){
                     fade_DX_delay("#DX_live_info");
