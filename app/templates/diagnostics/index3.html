@@ -267,7 +267,7 @@ function UpdateUI(status_URL){
             $("#text_motor_current").text(data['motor_current'])
         }
         if ('average_current' in data){
-            textDisabled("text_average_current",false);
+            textDisabled("text_avg_motor_current",false);
         }
         if ('worker_state' in data){
             $("#text_worker_state").text(data['worker_state']);
