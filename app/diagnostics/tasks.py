@@ -69,6 +69,7 @@ def machine_liveView(self,machine_serial_no):
     live_totaltime = my_machine.running_time
 
     while not kill:
+        print("Getting latest records. Only from %s" % live_timestamp)
         new_records = session.query(Record).filter_by(machine = my_machine)\
             .filter(Record.packet_timestamp > live_timestamp).all()
         if len(new_records) > 0:
@@ -89,6 +90,7 @@ def machine_liveView(self,machine_serial_no):
                         live_totaltime += record.packet_timestamp-live_timestamp
                         print("[Machine Scanner Task] Maching runnign time (total): %s" % live_totaltime)
                     live_timestamp = record.packet_timestamp
+                    print("Updating the live_timestamp to %s" % machine_state_in_packet.state_name)
                     live_data['state'] = machine_state_in_packet.state_name
                     if live_data['state'] == "Running":
                         live_data['motor_current'] = record.packet_data
