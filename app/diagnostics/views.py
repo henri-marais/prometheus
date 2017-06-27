@@ -104,6 +104,7 @@ def machine_scanner(task_id):
         'average_current':'',
         'state':task.info.get('state'),
         'worker_state': task.state}
+        print(response)
     else:
         #Something went wrong, most likely the worker has crashed
         response = {
