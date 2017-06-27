@@ -108,7 +108,7 @@ def machine_liveView(self,machine_serial_no):
                         print('[Machine Scanner Task] DX is Online. Changing machine state to "Stopped"')
                         my_machine.state = session.query(Machine_State).filter_by(state_name="Stopped").one()
         else:
-            print("No new records found. Sleeping for 1s")
+            print("No new records found for machine %d. Sleeping for 1s" % machine_serial_no)
         live_data['current_run_time'] = pack_time(live_runtime)
         live_data['total_run_time'] = pack_time(live_totaltime)
         # if ((datetime.utcnow()-timedelta(hours=-2))-my_machine.last_update) > timedelta(seconds=30):
