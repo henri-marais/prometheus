@@ -281,7 +281,7 @@ function UpdateUI(status_URL){
         if ('worker_state' in data){
             $("#text_worker_state").text(data['worker_state']);
         }
-        if ((data['state'] !== 'Offline') && ($("#live_view_button").text()=="Disconnect")) {
+        if (((data['worker_state'] == 'COMPUTING') || (data['worker_state'] == 'PENDING')) && ($("#live_view_button").text()=="Disconnect")) {
             setTimeout(function () {
                 UpdateUI(status_URL);
             }, 1000);
