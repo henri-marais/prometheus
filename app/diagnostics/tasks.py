@@ -71,7 +71,7 @@ def machine_liveView(self,machine_serial_no):
 
     while not kill:
         print("Getting latest records. Only from %s" % live_timestamp)
-        newest = session.query(Record).filter_by(machine= my_machine).order_by(desc(Record.packet_timestamp)).one()
+        newest = session.query(Record).filter_by(machine= my_machine).order_by(desc(Record.packet_timestamp)).first()
         print("Latest record for machine %d stamped as %s" % (newest.serial_no, newest.packet_timestamp))
 
         new_records = session.query(Record).filter_by(machine = my_machine)\
