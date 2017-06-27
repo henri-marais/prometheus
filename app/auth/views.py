@@ -1,12 +1,13 @@
 from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user, fresh_login_required
 from . import auth
-from ..email import send_email
+from ..email import send_email_threaded
 from ..models import User
 from .forms import LoginForm, RegistrationForm
 from ..extensions import db
 from datetime import datetime
 from app import celery
+from threading import Thread
 
 @auth.route('/login', methods=['GET','POST'])
 def login():
@@ -38,7 +39,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
-        send_email(user.email,'Confirm your account','auth/email/confirm',user=user,token=token)
+        send_email_threaded(user.email,'Confirm your account','auth/email/confirm',user=user,token=token)
         flash('New user %s added to the userbase!. Please check your email.' % user.name)
         return redirect(url_for('main.dashboard'))
     return render_template('auth/register.html', form=form)
