@@ -339,7 +339,6 @@ function UpdateUI(status_URL){
                             image.src = this.src;
                         };
                         download_image.src =  "{{ url_for('static',filename='images/MIXER_OFFLINE.png') }}";
-                        fade_DX_delay("#DX_machine_image")
                     }
                     if ('worker_state' in data){
                         $("#text_worker_state").text(data['worker_state']);
