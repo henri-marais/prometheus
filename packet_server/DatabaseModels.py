@@ -54,7 +54,7 @@ class Machine(Base):
     serial_no = Column(Integer, nullable=False, unique=True)
     location = Column(String(128))
     name = Column(String(256))
-    date_commisioned = Column(DateTime, default=datetime.utcnow)
+    date_commissioned = Column(DateTime)
     type_id = Column(Integer, ForeignKey('machine_types.id'))
 
     # type = relationship("Machine_Type", backref=backref('types', uselist=True))
