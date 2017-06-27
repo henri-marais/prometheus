@@ -285,7 +285,7 @@ function UpdateUI(status_URL){
         if (((data['worker_state'] == 'COMPUTING') || (data['worker_state'] == 'PENDING')) && ($("#live_view_button").text()=="Disconnect")) {
             setTimeout(function () {
                 UpdateUI(status_URL);
-            }, 1000);
+            }, 250);
         }else{
             //Worker has terminated, mark machine as Offline
             $("#text_state").text("Offline");
@@ -328,7 +328,7 @@ $(document).ready(function(){
                 "type": "Starting"
             }),
             contentType: "application/json",
-            success: alert("Loaded a starting packet for Virtual Mixer"),
+            //success: alert("Loaded a starting packet for Virtual Mixer"),
             dataType: 'json'
         })
     });
@@ -344,7 +344,7 @@ $(document).ready(function(){
                 "type": "Started"
             }),
             contentType: "application/json",
-            success: alert("Loaded a started packet for Virtual Mixer"),
+            //success: alert("Loaded a started packet for Virtual Mixer"),
             dataType: 'json'
         })
     });
@@ -359,7 +359,7 @@ $(document).ready(function(){
                 "data": $("#packet_current").val(),
             }),
             contentType: "application/json",
-            success: alert("Loaded a running packet for Virtual Mixer"),
+            //success: alert("Loaded a running packet for Virtual Mixer"),
             dataType: 'json'
         })
     });
@@ -388,7 +388,7 @@ $(document).ready(function(){
                 "type": "Shutdown"
             }),
             contentType: "application/json",
-            success: alert("Loaded a shutdown packet for Virtual Mixer"),
+            //success: alert("Loaded a shutdown packet for Virtual Mixer"),
             dataType: 'json'
         })
     });
@@ -402,7 +402,7 @@ $(document).ready(function(){
                 "type": "Heartbeat"
             }),
             contentType: "application/json",
-            success: alert("Loaded a heartbeat packet for Virtual Mixer"),
+            //success: alert("Loaded a heartbeat packet for Virtual Mixer"),
             dataType: 'json'
         })
     });
