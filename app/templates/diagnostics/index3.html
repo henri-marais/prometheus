@@ -303,6 +303,56 @@ function UpdateUI(status_URL){
             $("#text_motor_current").text("No Data");
             textDisabled("text_runtime", true);
             $("#text_runtime").text("No Data");
+
+            //Theoretically do an ajax call here to obtain the relevant information of the machine in question
+            var index = (document.getElementsByClassName("dropdown-toggle").length)-1;
+            $.ajax({
+                dataType: 'json',
+                data: JSON.stringify({"serial_no":document.getElementsByClassName("dropdown-toggle")[index].value}),
+                contentType: "application/json",
+                type: 'POST',
+                url: '/diagx/historic',
+                success: function (data, status, request) {
+                    if ('Cycles' in data){
+                        textDisabled("text_cycles",false);
+                        $("#text_cycles").text(data.Cycles)
+                    }
+                    if (data.Uptime){
+                        textDisabled("text_uptime",false);
+                        $("#text_uptime").text(data.Uptime)
+                    }
+                    if ('AvgRunCurrent' in data){
+                        textDisabled("text_uptime",false);
+                        $("#text_avg_motor_current").text(data['AvgRunCurrent'])
+                    }
+                    if ('Commisioned' in data){
+                        textDisabled("text_commisioned",false);
+                        $("#text_commisioned").text(data['Commisioned'])
+                    }
+                    if (data.State){
+                        fade_DX_delay("#DX_live_info");
+                        textDisabled("text_state",true);
+                        $("#text_state").text("Offline");
+                        var image = document.images[0];
+                        var download_image = new Image();
+                        download_image.onload = function(){
+                            image.src = this.src;
+                        };
+                        download_image.src =  "{{ url_for('static',filename='images/MIXER_OFFLINE.png') }}";
+                        fade_DX_delay("#DX_machine_image")
+                    }
+                    if ('worker_state' in data){
+                        $("#text_worker_state").text(data['worker_state']);
+                    }
+                },
+                error: function () {
+                    alert('ERROR: AJAX retrieving historic info!');
+                }
+            });
+
+
+
+
             }
 
     });
