@@ -97,11 +97,15 @@ def machine_scanner(task_id):
                    'worker_state': task.state}
     elif task.state == 'COMPUTING':
         #This is essentially the normal operating state
+        motor_current = task.info.get('motor_current')
+        if motor_current == "":
+            response['motor_current'] = "No Data"
+        else:
+            response['motor_current'] = "{:.5s} A".format(motor_current)
         response = {
         'total_run_time': task.info.get('total_run_time'),
         'current_run_time': task.info.get('current_run_time'),
         'cycles': task.info.get('cycles'),
-        'motor_current': "{:.5s} A".format(task.info.get('motor_current')),
         'average_current':'',
         'state':task.info.get('state'),
         'worker_state': task.state}
