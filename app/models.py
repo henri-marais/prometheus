@@ -119,7 +119,7 @@ class Machine(db.Model):
 
     cycles = db.Column(db.Integer, default=0)
     running_time = db.Column(db.Interval, default=timedelta(0))
-    last_update = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_update = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return '<%s, has been running for %s (%s cycles)>. Currently: %s' % (self.name, self.running_time, self.cycles, self.state.state_name)

@@ -65,7 +65,7 @@ class Machine(Base):
 
     cycles = Column(Integer, default=0)
     running_time = Column(Interval, default=timedelta(0))
-    last_update = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_update = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return '<%s, has been running for %s (%s cycles)>. Currently: %s. Last update %s' % (self.name,
