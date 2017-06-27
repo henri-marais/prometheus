@@ -34,8 +34,12 @@ def historic():
         response['Cycles'] = my_machine.cycles
         response['Uptime'] = pack_time(my_machine.running_time)
         response['State'] = my_machine.state.state_name
+        if my_machine.date_commissioned == None:
+            response['Commisioned'] = "No data"
+        else:
+            response['Commisioned'] = (my_machine.date_commissioned).strftime("%Y %b %d at %H:%M")
         if avg_running_current == 0:
-            response['AvgRunCurrent'] = "No data"
+            response['AvgRunCurrent'] = "Not yet"
         else:
             response['AvgRunCurrent'] = "{:2.2f} A".format(avg_running_current)
     except:
@@ -96,7 +100,7 @@ def machine_scanner(task_id):
         'total_run_time': task.info.get('total_run_time'),
         'current_run_time': task.info.get('current_run_time'),
         'cycles': task.info.get('cycles'),
-        'motor_current': "%s A" % task.info.get('motor_current'),
+        'motor_current': "{:2.2f} A".format(float(task.info.get('motor_current'))),
         'average_current':'',
         'state':task.info.get('state'),
         'worker_state': task.state}
@@ -111,6 +115,13 @@ def machine_scanner(task_id):
 def update_machine(serial_no):
     print("[Machine Updater] - Updating the machine")
     my_machine = Machine.query.filter_by(serial_no=serial_no).one()
+    try:
+        start_packet = Packet_Type.query.filter_by(packet_name="Starting").one()
+        start_record = Record.query.filter_by(machine=my_machine).filter_by(packet_type=start_packet).one()
+        my_machine.date_commissioned = start_record.packet_timestamp
+    except:
+        pass
+
     new_records = Record.query.filter_by(machine=my_machine) \
         .filter(Record.packet_timestamp > my_machine.last_update).all()
     if len(new_records) > 0:

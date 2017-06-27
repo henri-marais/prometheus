@@ -108,7 +108,7 @@ class Machine(db.Model):
     serial_no = db.Column(db.Integer, nullable=False, unique=True)
     location = db.Column(db.String(128))
     name = db.Column(db.String(256))
-    date_commisioned = db.Column(db.DateTime)
+    date_commissioned = db.Column(db.DateTime)
     type_id = db.Column(db.Integer, db.ForeignKey('machine_types.id'))
     #type field backref'ed
 

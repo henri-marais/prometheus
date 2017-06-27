@@ -36,12 +36,15 @@
                     <p><b>Current state:</b></p>
                     <p><b>Running time:</b></p>
                     <p><b>Motor current:</b></p>
+                    <p><b>Machine worker:</b></p>
                 </div>
 
                 <div class="col-xs-5 text-left">
                     <p class="text-muted" id="text_state"> Offline</p>
                     <p class="text-muted" id="text_runtime"> 00:00:00</p>
                     <p class="text-muted" id="text_motor_current"> 0 A</p>
+                    <p class="text_muted" id="text_worker_state">?</p>
+
                 </div>
                 <div class="col-xs-1"></div>
             </div>
@@ -57,21 +60,23 @@
                     <p><b>Cycles #:</b></p>
                     <p><b>Total uptime:</b></p>
                     <p><b>Typ. current (A):</b></p>
+                    <p><b>Commissioned:</b></p>
                 </div>
                 <div class="col-xs-5 text-left">
-                    <p class="text-muted" id="text_cycles">-1</p>
+                    <p class="text-muted" id="text_cycles"></p>
                     <p class="text-muted" id="text_uptime"></p>
                     <p class="text-muted" id="text_avg_motor_current"></p>
+                    <p class="text-muted" id="text_commisioned">Not yet</p>
                 </div>
                 <div class="col-xs-1"></div>
             </div>
 		</div>
     </div>
-    <div class="row bottom-space" id="DX_footer_row">
+    <!--<div class="row bottom-space" id="DX_footer_row">
         <div class="column">
             <p><b>Worker status   :</b><p class="text-muted" id="text_worker_state">worker is offline</p>
         </div>
-    </div>
+    </div>-->
 {% block footer %}
   <div class="navbar navbar-default navbar-fixed-bottom diagnostic_info" id="footer_menu">
     <div class="container">
@@ -170,6 +175,10 @@ function textDisabled(item_id, state) {
                 if ('AvgRunCurrent' in data){
                     textDisabled("text_uptime",false);
                     $("#text_avg_motor_current").text(data['AvgRunCurrent'])
+                }
+                if ('Commisioned' in data){
+                    textDisabled("text_commisioned",false);
+                    $("#text_commisioned").text(data['Commisioned'])
                 }
                 if (data.State){
                     fade_DX_delay("#DX_live_info");
