@@ -297,6 +297,12 @@ function UpdateUI(status_URL){
             if ('worker_state' in data){
                 $("#text_worker_state").text(data['worker_state']);
             }
+
+                textDisabled("text_motor_current", true);
+                $("#text_motor_current").text("No Data");
+                textDisabled("text_runtime", true);
+                $("#text_runtime").text("No Data");
+            }
         }
     });
 }
