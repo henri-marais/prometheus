@@ -249,6 +249,7 @@ function UpdateUI(status_URL){
                 var download_image = new Image();
                 download_image.onload = function(){image.src = this.src;};
                 download_image.src =  "{{ url_for('static',filename='images/MIXER_OFF.png') }}";
+                $("#text_runtime").text("No data")
             }else if (data['state'] === "Running"){
                 var image = document.images[0];
                 var download_image = new Image();
@@ -284,7 +285,7 @@ function UpdateUI(status_URL){
         if (((data['worker_state'] == 'COMPUTING') || (data['worker_state'] == 'PENDING')) && ($("#live_view_button").text()=="Disconnect")) {
             setTimeout(function () {
                 UpdateUI(status_URL);
-            }, 1000);
+            }, 250);
         }else{
             //Worker has terminated, mark machine as Offline
             $("#text_state").text("Offline");
