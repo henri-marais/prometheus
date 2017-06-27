@@ -7,7 +7,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound,NoResultFound
 import signal
 from .tasks import machine_liveView
 from celery.states import PENDING, REVOKED, FAILURE, SUCCESS
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 @diagnostics.route('/dashboard')
@@ -51,11 +51,12 @@ def packet_loader():
     if request.get_json()['serial_no'] == "1":
         my_machine = Machine.query.filter_by(serial_no=request.get_json()['serial_no']).one()
         this_packet = Packet_Type.query.filter_by(packet_name=request.get_json()['type']).one()
+        #Here the UTC server time is adjusted to allow fot naive GTM+2 times
         if 'data' in request.get_json():
-            new_record = Record(machine=my_machine, packet_type= this_packet, packet_timestamp= datetime.utcnow()
+            new_record = Record(machine=my_machine, packet_type= this_packet, packet_timestamp= datetime.utcnow()-timedelta(hours=-2)
                             , packet_data= float(request.get_json()['data']))
         else:
-            new_record = Record(machine=my_machine, packet_type=this_packet, packet_timestamp=datetime.utcnow())
+            new_record = Record(machine=my_machine, packet_type=this_packet, packet_timestamp=datetime.utcnow()-timedelta(hours=-2))
         db.session.add(new_record)
         db.session.commit()
 
